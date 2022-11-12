@@ -57,9 +57,11 @@ containerd config default > /etc/containerd/config.toml
 # 替换https://registry-1.docker.io为https://registry.cn-hangzhou.aliyuncs.com
 # 设置k8s.gcr.io的镜像地址为https://registry.aliyuncs.com/k8sxio
 sed -i "s#k8s.gcr.io#registry.aliyuncs.com/k8sxio#g"  /etc/containerd/config.toml
-sed -i '/containerd.runtimes.runc.options/a\ \ \ \ \ \ \ \ \ \ \ \ SystemdCgroup = true' /etc/containerd/config.toml
+#sed -i '/containerd.runtimes.runc.options/a\ \ \ \ \ \ \ \ \ \ \ \ SystemdCgroup = true' /etc/containerd/config.toml
+sed -i "s#SystemdCgroup = false#SystemdCgroup = true#g"  /etc/containerd/config.toml
 sed -i "s#https://registry-1.docker.io#https://8bfcfsp1.mirror.aliyuncs.com#g"  /etc/containerd/config.toml
 sed -i '/\[plugins\.\"io\.containerd\.grpc\.v1\.cri\"\.registry\.mirrors\]/ a\\ \ \ \ \ \ \ \ [plugins."io.containerd.grpc.v1.cri".registry.mirrors."k8s.gcr.io"]\n\ \ \ \ \ \ \ \ \ \ endpoint = ["https://registry.aliyuncs.com/k8sxio"]' /etc/containerd/config.toml
+sed -i '/\[plugins\.\"io\.containerd\.grpc\.v1\.cri\"\.registry\.mirrors\]/ a\\ \ \ \ \ \ \ \ [plugins."io.containerd.grpc.v1.cri".registry.mirrors."docker.io"]\n\ \ \ \ \ \ \ \ \ \ endpoint = ["https://bqr1dr1n.mirror.aliyuncs.com"]' /etc/containerd/config.toml
 systemctl daemon-reload
 systemctl enable containerd --now >/dev/null 2>&1
 systemctl restart containerd
@@ -70,13 +72,13 @@ cat <<EOF > /etc/yum.repos.d/kubernetes.repo
 name=Kubernetes
 baseurl=https://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64/
 enabled=1
-gpgcheck=1
-repo_gpgcheck=1
+gpgcheck=0
+repo_gpgcheck=0
 gpgkey=https://mirrors.aliyun.com/kubernetes/yum/doc/yum-key.gpg https://mirrors.aliyun.com/kubernetes/yum/doc/rpm-package-key.gpg
 EOF
 
 echo "[TASK 10] Install Kubernetes components (kubeadm, kubelet and kubectl)"
-yum install -y --disableexcludes=kubernetes kubeadm-1.22.2-0 kubelet-1.22.2-0 kubectl-1.22.2-0 >/dev/null 2>&1
+yum install -y --disableexcludes=kubernetes kubeadm-1.25.4-0 kubelet-1.25.4-0 kubectl-1.25.4-0 >/dev/null 2>&1
 crictl config runtime-endpoint /run/containerd/containerd.sock
 crictl config image-endpoint /run/containerd/containerd.sock
 systemctl daemon-reload

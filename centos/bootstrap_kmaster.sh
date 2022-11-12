@@ -21,8 +21,8 @@ kubeadm config images list | grep -v 'coredns' | sed 's#k8s.gcr.io#ctr images pu
 # containerd环境下镜像存在namespace隔离，kubernetes的镜像在k8s.io namespace下，因此需要指定namespace
 # 拉取到镜像后，将镜像标记为registry.aliyuncs.com/k8sxio/coredns:v1.8.4 后面的 kubeadm init 指定了image-repository为registry.aliyuncs.com/k8sxio
 cat >> images.sh <<EOF
-ctr -n k8s.io images pull registry.cn-hangzhou.aliyuncs.com/google_containers/coredns:1.8.4
-ctr -n k8s.io images tag registry.cn-hangzhou.aliyuncs.com/google_containers/coredns:1.8.4 registry.aliyuncs.com/k8sxio/coredns:v1.8.4
+ctr -n k8s.io images pull registry.cn-hangzhou.aliyuncs.com/google_containers/coredns:1.9.3
+ctr -n k8s.io images tag registry.cn-hangzhou.aliyuncs.com/google_containers/coredns:1.9.3 registry.aliyuncs.com/k8sxio/coredns:v1.9.3
 EOF
 chmod +x images.sh && ./images.sh >/dev/null 2>&1
 
@@ -30,7 +30,6 @@ echo "[TASK 2] Initialize Kubernetes Cluster"
 kubeadm init \
   --apiserver-advertise-address=192.168.56.100 \
   --control-plane-endpoint=apiserver.endpoint \
-  --kubernetes-version v1.22.2 \
   --image-repository registry.aliyuncs.com/k8sxio \
   --service-cidr=10.96.0.0/16 \
   --pod-network-cidr=${POD_CIDR} > /root/kubeinit.log 2>/dev/null
